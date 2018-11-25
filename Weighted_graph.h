@@ -139,6 +139,8 @@ bool Weighted_graph::insert_edge( int i, int j, double d ) {
 	graph[i][j] = d;
 	graph[j][i] = d;
 
+
+
 	++num_edges;
 	return true;
 }
@@ -157,9 +159,12 @@ bool Weighted_graph::edge_exists(int i, int j){
 
 std::pair<double, int> Weighted_graph::minimum_spanning_tree() const {
 	Disjoint_set ds(this->num_nodes);
-
+	//let's sort the edges 
+	std::vector< std::vector< int > > sorted_edges;
 	
-	
+	for(int i = 0; i < num_edges; ++i){
+		//sorted_edges[i].push_back(); // we'll push in the weight and the indices
+	}
 
 	return std::pair<double, int>( 0.0, 0 );
 }
