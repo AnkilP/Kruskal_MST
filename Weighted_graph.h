@@ -34,10 +34,27 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <algorithm>
 #include "Exception.h"
 #include "Disjoint_sets.h"
 
 using namespace std;
+
+struct edge{
+	int node1;
+	int node2;
+	double weight;
+
+	edge(int node1, int node2, double weight): node1(node1), node2(node2), weight(weight) {}
+};
+
+struct edge_comparator
+{
+    inline bool operator() (const edge& struct1, const edge& struct2)
+    {
+        return (struct1.weight < struct2.weight);
+    }
+};
 
 class Weighted_graph {
 	private:
@@ -45,6 +62,8 @@ class Weighted_graph {
 		double** graph;
 		int num_nodes;
 		int num_edges;
+
+		std::vector< std::pair< double, std::pair<int,int> > > sorted_edges;
 
 		// Do not implement these functions!
 		// By making these private and not implementing them, any attempt
@@ -124,7 +143,6 @@ void Weighted_graph::clear_edges() {
 			graph[i][j] = INF;
 		}
 	}
-	
 }
 
 bool Weighted_graph::insert_edge( int i, int j, double d ) {
@@ -139,7 +157,7 @@ bool Weighted_graph::insert_edge( int i, int j, double d ) {
 	graph[i][j] = d;
 	graph[j][i] = d;
 
-
+	//if(std::find(sorted_edges.begin().second, sorted_edges.end().second ))
 
 	++num_edges;
 	return true;
@@ -160,11 +178,15 @@ bool Weighted_graph::edge_exists(int i, int j){
 std::pair<double, int> Weighted_graph::minimum_spanning_tree() const {
 	Disjoint_set ds(this->num_nodes);
 	//let's sort the edges 
-	std::vector< std::vector< int > > sorted_edges;
-	
-	for(int i = 0; i < num_edges; ++i){
-		//sorted_edges[i].push_back(); // we'll push in the weight and the indices
+	for(int i = 0; i < num_nodes; ++i){
+		for(int j = 0; j < num_nodes; ++j){
+			if(graph[i][j] != INF){
+				sorted_edges.push_back(std::make_pair(graph[i][j], std::make_pair(i,j)));
+			}
+		} 
 	}
+	std::sort(sorted_edges.begin(), sorted_edges.end());
+
 
 	return std::pair<double, int>( 0.0, 0 );
 }

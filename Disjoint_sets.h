@@ -12,8 +12,8 @@
 
 using namespace std;
 
-//struct ll_entry; // represents each element of the linked list
-//struct set_info; // keeps track of the information (pointers to head and tail and the size of the set) of each set
+struct ll_entry; // represents each element of the linked list
+struct set_info; // keeps track of the information (pointers to head and tail and the size of the set) of each set
 //could we delete the above two lines?
 
 
