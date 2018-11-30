@@ -40,7 +40,7 @@
 
 using namespace std;
 
-typedef std::pair<double, std::pair<int,int>> __pair;
+typedef std::pair<double, std::pair<int,int> > __pair;
 
 class Weighted_graph {
 	private:
@@ -68,7 +68,7 @@ class Weighted_graph {
 		bool insert_edge( int, int, double );
 		bool erase_edge( int, int );
 		void clear_edges();
-		bool edge_exists(int i, int j);
+		bool edge_exists(int , int );
 
 	// Friends
 
@@ -97,10 +97,21 @@ Weighted_graph::~Weighted_graph() {
 }
 
 int Weighted_graph::degree(int u) const {
+	if(u >= num_nodes || u < 0){
+		throw illegal_argument();
+	}
+	// std::cout << std::endl;
+	// for(int i = 0; i < num_nodes; ++i){
+	// 	for(int j = 0; j < num_nodes; ++j){
+	// 		cout << graph[i][j] << ' ';
+	// 	}
+	// 	cout << std::endl;
+	// }
+
 	int count = 0;
-	for(int i =0; i < num_nodes; ++i){
-		if(graph[u][i] != INF){
-			count++;
+	for(int i = 0; i < num_nodes; i++){
+		if(graph[u][i] != INF || graph[i][u] != INF){
+			count += 1;
 		}
 	}
 	return count;
@@ -127,6 +138,7 @@ void Weighted_graph::clear_edges() {
 			graph[i][j] = INF;
 		}
 	}
+	num_edges = 0;
 }
 
 bool Weighted_graph::insert_edge( int i, int j, double d ) {
@@ -134,14 +146,16 @@ bool Weighted_graph::insert_edge( int i, int j, double d ) {
 		throw illegal_argument();
 	}
 
-	if(i == j && edge_exists(i,j)){
+	if(i == j){
 		return false;
 	}
 
-	graph[i][j] = d;
-	graph[j][i] = d;
+	if(graph[i][j] == INF){
+		num_edges++;
+	}
 
-	++num_edges;
+	graph[i][j] = d;
+	
 	return true;
 }
 
@@ -150,7 +164,11 @@ bool Weighted_graph::edge_exists(int i, int j){
 	//if I find an edge going in one direction, 
 	//then the arc going in the other direction also exists
 
-	if(graph[i][j] == INF){
+	if(i > num_nodes - 1 || i < 0 || j > num_nodes - 1 || j < 0){
+		throw illegal_argument();
+	}
+
+	if(graph[i][j] == INF && graph[j][i] == INF){
 		return false;
 	}
 	return true;
@@ -166,14 +184,22 @@ std::pair<double, int> Weighted_graph::minimum_spanning_tree() const {
 	for(int i = 0; i < num_nodes; ++i){
 		for(int j = 0; j < num_nodes; ++j){
 			if(graph[i][j] != INF){
-				sorted_edges.emplace_back(std::make_pair(this->graph[i][j], std::make_pair(i,j)));
+				sorted_edges.push_back(std::make_pair(graph[i][j], std::make_pair(i,j)));
 			}
 		} 
 	}
+
 	std::sort(sorted_edges.begin(), sorted_edges.end());
+/*
+	////Only use when testing for sorted list.
+
+	// for(std::vector<__pair>::iterator it = sorted_edges.begin(); it != sorted_edges.end(); ++it) {
+    // 	std::cout << (*it).first << ' ' << (*it).second.first << ' ' << (*it).second.second << std::endl; 
+	// }
+*/
 	__pair temp_edge;
 	int edges = 0;
-	int weight = 0;
+	double weight = 0;
 	int tries = 0;
 	while(edges < num_nodes - 1){
 		temp_edge = *(sorted_edges.begin());
@@ -186,12 +212,20 @@ std::pair<double, int> Weighted_graph::minimum_spanning_tree() const {
 		tries++;
 	}
 
+	delete ds;
+
 	return std::pair<double, int>( weight, tries );
 }
 
 std::ostream &operator<<( std::ostream &out, Weighted_graph const &graph ) {
-	
-
+	for(int i = 0; i < graph.num_nodes; ++i){
+		for(int j = 0; j < graph.num_nodes; ++j){
+			out << graph.graph[i][j] << ' ';
+		}
+		out << std::endl;
+	}
+	out <<flush;
+	// out << "Is this working";
 	return out;
 }
 

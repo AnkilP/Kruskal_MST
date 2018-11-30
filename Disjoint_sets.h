@@ -51,7 +51,7 @@ initial_num_sets(n) {
 	for(int i = 0; i < n; ++i){
 		nodes[i].content = i;
 		nodes[i].ptr_to_info = &sets[i];
-		nodes[i].next = NULL;
+		nodes[i].next = nullptr;
 		sets[i].head = &nodes[i];
 		sets[i].tail = &nodes[i];
 		sets[i].size = 1;
@@ -63,7 +63,7 @@ Disjoint_set::~Disjoint_set() {
 	delete[] sets;
 }
 int Disjoint_set::find_set(int item) const{
-	if(item >= set_counter || item < 0){
+	if(item >= initial_num_sets || item < 0){
 		throw illegal_argument();
 	}
 	return nodes[item].ptr_to_info->head->content; 
@@ -85,26 +85,22 @@ void Disjoint_set::union_sets(int node_index1, int node_index2) {
 	int ni1 = si1->size >= si2->size ? node_index1 : node_index2; 
 	int ni2 = si1->size < si2->size ? node_index1 : node_index2;
 
-	auto * temp_node = &nodes[ni2];
+	ll_entry * temp_node = &nodes[ni2];
 	//iterate through the shorter list and modify the pointers
 
 	nodes[ni1].ptr_to_info->tail->next = temp_node;
 	nodes[ni1].ptr_to_info->tail = temp_node->ptr_to_info->tail;
 
-	while (temp_node != NULL) {
+	while (temp_node != nullptr) {
 		temp_node->ptr_to_info = nodes[ni1].ptr_to_info;
 		nodes[ni1].ptr_to_info->size += 1;
 //		delete temp_node->ptr_to_info; // don't think I need this
 		temp_node = temp_node->next;
 	}
-
+	set_counter--;
 	// do we need to modify anything else?
-	
-
+	delete temp_node;
 	// delete the set_info entry that no longer exists
-	
-	
-	
 }
 
 
