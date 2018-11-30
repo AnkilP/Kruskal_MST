@@ -63,8 +63,6 @@ class Weighted_graph {
 		int num_nodes;
 		int num_edges;
 
-		std::vector< std::pair< double, std::pair<int,int> > > sorted_edges;
-
 		// Do not implement these functions!
 		// By making these private and not implementing them, any attempt
 		// to make copies or assignments will result in errors
@@ -76,7 +74,7 @@ class Weighted_graph {
 	public:
 		Weighted_graph( int = 10 );
 		~Weighted_graph();
-
+		
 		int degree( int ) const;
 		int edge_count() const;
 		std::pair<double, int> minimum_spanning_tree() const;
@@ -157,8 +155,6 @@ bool Weighted_graph::insert_edge( int i, int j, double d ) {
 	graph[i][j] = d;
 	graph[j][i] = d;
 
-	//if(std::find(sorted_edges.begin().second, sorted_edges.end().second ))
-
 	++num_edges;
 	return true;
 }
@@ -177,16 +173,20 @@ bool Weighted_graph::edge_exists(int i, int j){
 
 std::pair<double, int> Weighted_graph::minimum_spanning_tree() const {
 	Disjoint_set ds(this->num_nodes);
+	
+	std::vector<int> sorted_edges;
+
 	//let's sort the edges 
 	for(int i = 0; i < num_nodes; ++i){
 		for(int j = 0; j < num_nodes; ++j){
 			if(graph[i][j] != INF){
-				sorted_edges.push_back(std::make_pair(graph[i][j], std::make_pair(i,j)));
+				sorted_edges.emplace_back(std::make_pair(this->graph[i][j], std::make_pair(i,j)));
 			}
 		} 
 	}
 	std::sort(sorted_edges.begin(), sorted_edges.end());
 
+	
 
 	return std::pair<double, int>( 0.0, 0 );
 }
