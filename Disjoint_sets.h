@@ -21,7 +21,6 @@ struct ll_entry{
 	int content;
 	set_info* ptr_to_info; // ptr to the info entry of the corresponding set
 	ll_entry* next;
-	
 };
 
 struct set_info { 
@@ -33,8 +32,8 @@ struct set_info {
 class Disjoint_set {
 
 private:
-	ll_entry** nodes;
-	set_info** sets;
+	ll_entry* nodes;
+	set_info* sets;
 	int set_counter;
 	int initial_num_sets;
 public:
@@ -45,19 +44,29 @@ public:
 	void union_sets(int, int);
 };
 
-Disjoint_set::Disjoint_set(int n) : nodes(new ll_entry*[n]), 
-sets (new set_info*[n]), 
+Disjoint_set::Disjoint_set(int n) : nodes(new ll_entry[n]), 
+sets (new set_info[n]), 
 set_counter(n),
 initial_num_sets(n) {
-	// initialize the sets	
+	for(int i = 0; i < n; ++i){
+		nodes[i].content = i;
+		nodes[i].ptr_to_info = &sets[i];
+		nodes[i].next = NULL;
+		sets[i].head = &nodes[i];
+		sets[i].tail = &nodes[i];
+		sets[i].size = 1;
+	}
 }
 
 Disjoint_set::~Disjoint_set() {
-	// deallocate memory
+	delete[] nodes;
+	delete[] sets;
 }
 int Disjoint_set::find_set(int item) const{
-	// should it be? return nodes[item]->ptr_to_info->head->content 
-	return 0;
+	if(item >= set_counter || item < 0){
+		throw illegal_argument();
+	}
+	return nodes[item].ptr_to_info->head->content; 
 }
 
 int Disjoint_set::num_sets() const {
@@ -69,18 +78,25 @@ void Disjoint_set::union_sets(int node_index1, int node_index2) {
 	if (node_index1 == node_index2)
 		return;
 	
-	set_info* si1 = nodes[node_index1]->ptr_to_info;
-	set_info* si2 = nodes[node_index2]->ptr_to_info;
+	set_info* si1 = nodes[node_index1].ptr_to_info;
+	set_info* si2 = nodes[node_index2].ptr_to_info;
 
 	// ni1: the index of the larger set, ni2: the index of the smaller index
 	int ni1 = si1->size >= si2->size ? node_index1 : node_index2; 
 	int ni2 = si1->size < si2->size ? node_index1 : node_index2;
 
+	auto * temp_node = &nodes[ni2];
+	//iterate through the shorter list and modify the pointers
 
-	/* iterate through the shorter list and modify the pointers
-	while (has not reached the end of set) {
-		....
-	}*/
+	nodes[ni1].ptr_to_info->tail->next = temp_node;
+	nodes[ni1].ptr_to_info->tail = temp_node->ptr_to_info->tail;
+
+	while (temp_node != NULL) {
+		temp_node->ptr_to_info = nodes[ni1].ptr_to_info;
+		nodes[ni1].ptr_to_info->size += 1;
+//		delete temp_node->ptr_to_info; // don't think I need this
+		temp_node = temp_node->next;
+	}
 
 	// do we need to modify anything else?
 	

@@ -40,21 +40,7 @@
 
 using namespace std;
 
-struct edge{
-	int node1;
-	int node2;
-	double weight;
-
-	edge(int node1, int node2, double weight): node1(node1), node2(node2), weight(weight) {}
-};
-
-struct edge_comparator
-{
-    inline bool operator() (const edge& struct1, const edge& struct2)
-    {
-        return (struct1.weight < struct2.weight);
-    }
-};
+typedef std::pair<double, std::pair<int,int>> __pair;
 
 class Weighted_graph {
 	private:
@@ -172,9 +158,9 @@ bool Weighted_graph::edge_exists(int i, int j){
 }
 
 std::pair<double, int> Weighted_graph::minimum_spanning_tree() const {
-	Disjoint_set ds(this->num_nodes);
+	Disjoint_set * ds = new Disjoint_set(num_nodes);
 	
-	std::vector<int> sorted_edges;
+	std:vector<__pair> sorted_edges;
 
 	//let's sort the edges 
 	for(int i = 0; i < num_nodes; ++i){
@@ -185,10 +171,22 @@ std::pair<double, int> Weighted_graph::minimum_spanning_tree() const {
 		} 
 	}
 	std::sort(sorted_edges.begin(), sorted_edges.end());
+	__pair temp_edge;
+	int edges = 0;
+	int weight = 0;
+	int tries = 0;
+	while(edges < num_nodes - 1){
+		temp_edge = *(sorted_edges.begin());
+		sorted_edges.erase(sorted_edges.begin());
+		if(ds->find_set(temp_edge.second.first) != ds->find_set(temp_edge.second.second)){
+			edges++;
+			ds->union_sets(temp_edge.second.first, temp_edge.second.second);
+			weight += temp_edge.first;
+		}
+		tries++;
+	}
 
-	
-
-	return std::pair<double, int>( 0.0, 0 );
+	return std::pair<double, int>( weight, tries );
 }
 
 std::ostream &operator<<( std::ostream &out, Weighted_graph const &graph ) {
