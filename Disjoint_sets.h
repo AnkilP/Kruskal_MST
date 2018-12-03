@@ -1,4 +1,7 @@
-
+/*
+	I deviated from the original template by converting the
+	array of pointers (ll_entry and set_info) to a simple array.
+*/
 #ifndef DISJOINT_SET_H
 #define DISJOINT_SET_H
 
@@ -14,8 +17,6 @@ using namespace std;
 
 struct ll_entry; // represents each element of the linked list
 struct set_info; // keeps track of the information (pointers to head and tail and the size of the set) of each set
-//could we delete the above two lines?
-
 
 struct ll_entry{ 
 	int content;
@@ -32,10 +33,11 @@ struct set_info {
 class Disjoint_set {
 
 private:
-	ll_entry* nodes;
-	set_info* sets;
-	int set_counter;
-	int initial_num_sets;
+	ll_entry* nodes; //An array the node entries in the linked lists.
+	set_info* sets; //An array that keeps the information for each set. This information
+                    //includes the pointers to head and tail of the set as well as an integer that keeps the size of the set.
+	int set_counter; //A variable that saves the current number of sets.
+	int initial_num_sets; // saves the initial number of sets
 public:
 	Disjoint_set(int);
 	~Disjoint_set();
@@ -43,6 +45,11 @@ public:
 	int num_sets() const;
 	void union_sets(int, int);
 };
+
+/*
+Constructs a disjoint sets data structures with n sets each containing one element
+(therefore the total number of elements in n).
+*/
 
 Disjoint_set::Disjoint_set(int n) : nodes(new ll_entry[n]), 
 sets (new set_info[n]), 
@@ -58,10 +65,15 @@ initial_num_sets(n) {
 	}
 }
 
+//Cleans up any allocated memory.
+
 Disjoint_set::~Disjoint_set() {
 	delete[] nodes;
 	delete[] sets;
 }
+
+//Returns the representative of the set that the node item belongs to.
+
 int Disjoint_set::find_set(int item) const{
 	if(item >= initial_num_sets || item < 0){
 		throw illegal_argument();
@@ -69,9 +81,13 @@ int Disjoint_set::find_set(int item) const{
 	return nodes[item].ptr_to_info->head->content; 
 }
 
+//Returns the number of sets.
+
 int Disjoint_set::num_sets() const {
 	return set_counter;
 }
+
+//Unites the dynamic sets that contain node_index1 and node_index2.
 
 void Disjoint_set::union_sets(int node_index1, int node_index2) {
 	
@@ -85,7 +101,8 @@ void Disjoint_set::union_sets(int node_index1, int node_index2) {
 	int ni1 = si1->size >= si2->size ? node_index1 : node_index2; 
 	int ni2 = si1->size < si2->size ? node_index1 : node_index2;
 
-	ll_entry * temp_node = &nodes[ni2];
+	ll_entry * temp_node = &nodes[ni2]; // TODO: do I need to do this?
+	
 	//iterate through the shorter list and modify the pointers
 
 	nodes[ni1].ptr_to_info->tail->next = temp_node;
@@ -94,13 +111,11 @@ void Disjoint_set::union_sets(int node_index1, int node_index2) {
 	while (temp_node != nullptr) {
 		temp_node->ptr_to_info = nodes[ni1].ptr_to_info;
 		nodes[ni1].ptr_to_info->size += 1;
-//		delete temp_node->ptr_to_info; // don't think I need this
 		temp_node = temp_node->next;
 	}
 	set_counter--;
-	// do we need to modify anything else?
+
 	delete temp_node;
-	// delete the set_info entry that no longer exists
 }
 
 
